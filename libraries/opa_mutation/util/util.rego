@@ -159,12 +159,8 @@ opa_volume := {
 pod_annotation_patch := patch {
   patch := {
     "op": "add",
-    "path": sprintf("%v/metadata/annotations/-", [root_path]),
-    "value": [
-      {
-        "styra.com/opa": "injected"
-      }
-    ]
+    "path": sprintf("%v/metadata/annotations/styra.com~1opa", [root_path]),
+    "value": "injected"
   }
 }
 
