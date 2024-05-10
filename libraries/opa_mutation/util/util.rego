@@ -155,3 +155,24 @@ opa_volume := {
             "name": data.library.parameters.config
           }
         }
+        
+pod_annotation_patch := patch {
+  patch := {
+    "op": "add",
+    "path": sprintf("%v/metadata/annotations/-", [root_path]),
+    "value": [
+      {
+        "styra.com/opa": "injected"
+      }
+    ]
+  }
+}
+
+#pod_annotation_patch := patch {
+#  remove_opa
+#  patch := {
+#    "op": "remove",
+#    "path": sprintf("%v/spec/volumes/-", [root_path]),
+#    "value": opa_volume
+#  }
+#}

@@ -3,6 +3,7 @@ package libraries.opa_mutation.istio
 import data.libraries.opa_mutation.util.injectable_object
 import data.libraries.opa_mutation.util.opa_patch
 import data.libraries.opa_mutation.util.opa_volume_patch
+import data.libraries.opa_mutation.util.pod_annotation_patch
 
 
 
@@ -55,6 +56,7 @@ istio_opa_patches[patch] {
   injectable_object
   patch := [
     opa_patch,
-    opa_volume_patch
+    opa_volume_patch,
+    pod_annotation_patch
   ]
 }
