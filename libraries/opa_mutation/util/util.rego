@@ -156,13 +156,13 @@ opa_volume := {
           }
         }
         
-pod_annotation_patch := patch {
-  patch := {
-    "op": "add",
-    "path": sprintf("%v/metadata/annotations/styra.com~1status", [root_path]),
-    "value": "injected"
-  }
-}
+#pod_annotation_patch := patch {
+#  patch := {
+#    "op": "add",
+#    "path": sprintf("%v/metadata/annotations/styra.com~1status", [root_path]),
+#    "value": "injected"
+#  }
+#}
 
 #pod_annotation_patch := patch {
 #  remove_opa
