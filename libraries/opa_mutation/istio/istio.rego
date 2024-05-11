@@ -56,7 +56,7 @@ istio_opa_patches[patch] {
   injectable_object
   patch := [
     opa_patch,
-    opa_volume_patch,
-    pod_annotation_patch
+    opa_volume_patch#,
+    #pod_annotation_patch
   ]
 }
