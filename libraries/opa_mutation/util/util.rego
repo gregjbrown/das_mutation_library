@@ -185,7 +185,15 @@ opa_volume_patch := patch {
 
 opa_volume_patch := patch {
   remove_operation
-  patch := ""
+  existing_volumes
+  
+  some i
+  input.request.object.spec.volumes[i].name == "opa-config-vol"
+  
+  patch := {
+        "op": "remove",
+        "path": sprintf("%v/spec/volumes/%v", [root_path, i])
+      }
 }
 
 opa_volume := {
