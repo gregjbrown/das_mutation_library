@@ -2,6 +2,8 @@ package libraries.opa_mutation.util
 
 import future.keywords.in
 
+ignore_pod_label := "sidecar.styra.com/inject"
+
 default opa_image := "openpolicyagent/opa:latest-envoy-rootless" 
 
 opa_image := data.policy["com.styra.kubernetes.mutating"].rules.rules.rapid_channel_opa_image {
@@ -19,16 +21,16 @@ opa_image := data.policy["com.styra.kubernetes.mutating"].rules.rules.stable_cha
 injectable_pod {
   input.request.kind.kind == "Pod"
   not input.request.object.metadata.labels.app == "slp"
-  inject_label
+  #inject_label
   input.request.operation in ["CREATE", "UPDATE"]
-  not opa_container_exists
+  #not opa_container_exists
 }
 
 injectable_deployment {
   input.request.kind.kind == "Deployment"
-  inject_label
+  #inject_label
   input.request.operation in ["CREATE", "UPDATE"]
-  not opa_container_exists
+  #not opa_container_exists
 }
 
 inject_label {
@@ -59,6 +61,21 @@ injectable_object {
   injectable_deployment
 }
 
+ignore_pod {
+  input.request.kind.kind == "Pod"
+  input.request.object.metadata.labels[ignore_pod_label] == "true"
+}
+
+add_operation {
+  inject_label
+  not opa_container_exists
+}
+
+remove_operation {
+  not inject_label
+  opa_container_exists
+}
+
 root_path := "" {
   injectable_pod
 }
@@ -86,7 +103,9 @@ opa_volume_mounts := [opa_config_mount, opa_socket_mount] {
   data.library.parameters["use-socket"] == "Yes"
 }
 
-opa_patch := {
+opa_patch := patch {
+  add_operation
+  patch := {
         "op": "add",
         "path": sprintf("%v/spec/containers/-",[root_path]),
         "value": {
@@ -124,6 +143,19 @@ opa_patch := {
           }
         }
     }
+  }
+
+opa_patch := patch {
+  remove_operation
+  
+  some i
+  input.request.object.spec.containers[i].name == "opa"
+  
+  patch := {
+        "op": "remove",
+        "path": sprintf("%v/spec/containers/%v",[root_path, i])
+       }
+}
 
 existing_volumes {
   input.request.object.spec.template.spec.volumes
@@ -133,6 +165,7 @@ existing_volumes {
 }
 
 opa_volume_patch := patch {
+  add_operation
   existing_volumes
   patch := {
         "op": "add",
@@ -141,6 +174,7 @@ opa_volume_patch := patch {
       }
 }
 opa_volume_patch := patch {
+  add_operation
   not existing_volumes
   patch := {
         "op": "add",

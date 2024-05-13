@@ -3,7 +3,7 @@ package libraries.opa_mutation.istio
 import data.libraries.opa_mutation.util.injectable_object
 import data.libraries.opa_mutation.util.opa_patch
 import data.libraries.opa_mutation.util.opa_volume_patch
-import data.libraries.opa_mutation.util.pod_annotation_patch
+import data.libraries.opa_mutation.util.ignore_pod
 
 
 
@@ -53,6 +53,7 @@ import data.libraries.opa_mutation.util.pod_annotation_patch
 #     type: rego
 #     value: "{{this}}[patch]"
 istio_opa_patches[patch] {
+  not ignore_pod
   injectable_object
   patch := [
     opa_patch,
