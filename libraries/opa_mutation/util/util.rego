@@ -183,6 +183,11 @@ opa_volume_patch := patch {
       }
 }
 
+opa_volume_patch := patch {
+  remove_operation
+  patch := ""
+}
+
 opa_volume := {
           "name": "opa-config-vol",
           "configMap": {
