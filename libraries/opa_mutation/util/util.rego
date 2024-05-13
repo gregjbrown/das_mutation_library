@@ -63,7 +63,7 @@ injectable_object {
 
 ignore_pod {
   input.request.kind.kind == "Pod"
-  input.request.object.metadata.labels[ignore_pod_label] == "true"
+  input.request.object.metadata.labels[ignore_pod_label] == "false"
 }
 
 add_operation {
