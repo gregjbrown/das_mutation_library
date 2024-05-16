@@ -61,11 +61,6 @@ injectable_object {
   injectable_deployment
 }
 
-ignore_pod {
-  input.request.kind.kind == "Pod"
-  input.request.object.metadata.labels[ignore_pod_label] == "false"
-}
-
 add_operation {
   inject_label
   not opa_container_exists
