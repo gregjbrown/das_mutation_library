@@ -1,8 +1,6 @@
 package libraries.opa_mutation.util
-
+  
 import future.keywords.in
-
-ignore_pod_label := "sidecar.styra.com/inject"
 
 default opa_image := "openpolicyagent/opa:latest-envoy-rootless" 
 
@@ -18,31 +16,45 @@ opa_image := data.policy["com.styra.kubernetes.mutating"].rules.rules.stable_cha
   data.library.parameters.channel == "Stable"
 }
 
+injectable_object {
+  injectable_pod
+}
+  
 injectable_pod {
   input.request.kind.kind == "Pod"
+  not input.request.namespace == "kube-system"
   not input.request.object.metadata.labels.app == "slp"
-  #inject_label
   input.request.operation in ["CREATE", "UPDATE"]
-  #not opa_container_exists
 }
 
-injectable_deployment {
-  input.request.kind.kind == "Deployment"
-  #inject_label
-  input.request.operation in ["CREATE", "UPDATE"]
-  #not opa_container_exists
+namespace_label_key := data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label]
+namespace_value_key := data.library.parameters["label-value"]
+
+injection_enabled_ns {
+  namespace_label_key == namespace_value_key
 }
 
-inject_label {
-  data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label] == data.library.parameters["label-value"]
+injection_disabled_ns {
+  namespace_label_key != namespace_value_key
 }
 
-inject_label {
-  input.request.object.metadata.labels[data.library.parameters.label] == data.library.parameters["label-value"]
+injection_unlabeled_ns {
+  not namespace_label_key
 }
 
-inject_label {
-  input.request.object.spec.template.metadata.labels[data.library.parameters.label] == data.library.parameters["label-value"]
+pod_label_key := input.request.object.spec.template.metadata.labels[data.library.parameters.label]
+pod_value_key := data.library.parameters["label-value"]
+
+injection_enabled_pod {
+   pod_label_key == pod_value_key
+}
+
+injection_disabled_pod {
+  pod_label_key != pod_value_key
+}
+
+injection_unlabeled_pod {
+  not pod_label_key
 }
 
 opa_container_exists {
@@ -53,21 +65,25 @@ opa_container_exists {
   input.request.object.spec.template.spec.containers[_].name == "opa"
 }
 
-injectable_object {
-  injectable_pod
-}
-
-injectable_object {
-  injectable_deployment
+add_operation {
+  injection_enabled_pod
+  not opa_container_exists
 }
 
 add_operation {
-  inject_label
+  injection_unlabeled_pod
+  injection_enabled_ns
   not opa_container_exists
 }
 
 remove_operation {
-  not inject_label
+  injection_disabled_pod
+  opa_container_exists
+}
+
+remove_operation {
+  injection_unlabeled_pod
+  not injection_enabled_ns
   opa_container_exists
 }
 
@@ -75,21 +91,17 @@ root_path := "" {
   injectable_pod
 }
 
-root_path := "/spec/template" {
-  injectable_deployment
+opa_config_mount := {
+	"readOnly": true,
+	"mountPath": "/config",
+	"name": "opa-config-vol",
 }
 
-opa_config_mount := {
-              "readOnly": true,
-              "mountPath": "/config",
-              "name": "opa-config-vol"
-            }
-            
 opa_socket_mount := {
-      "readOnly": false,
-      "mountPath": "/run/opa/sockets",
-      "name": "opa-socket"
-    } 
+	"readOnly": false,
+	"mountPath": "/run/opa/sockets",
+	"name": "opa-socket",
+}
     
 opa_volume_mounts := [opa_config_mount] {
   not data.library.parameters["use-socket"] == "Yes"

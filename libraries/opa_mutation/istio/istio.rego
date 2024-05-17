@@ -53,11 +53,9 @@ import data.libraries.opa_mutation.util.ignore_pod
 #     type: rego
 #     value: "{{this}}[patch]"
 istio_opa_patches[patch] {
-  #not ignore_pod
   injectable_object
   patch := [
     opa_patch,
-    opa_volume_patch#,
-    #pod_annotation_patch
+    opa_volume_patch
   ]
 }
