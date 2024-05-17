@@ -42,7 +42,7 @@ injection_unlabeled_ns {
   not namespace_label_key
 }
 
-pod_label_key := input.request.object.spec.template.metadata.labels[data.library.parameters.label]
+pod_label_key := input.request.object.metadata.labels[data.library.parameters.label]
 pod_value_key := data.library.parameters["label-value"]
 
 injection_enabled_pod {
@@ -184,10 +184,10 @@ opa_volume_patch := patch {
   add_operation
   not existing_volumes
   patch := {
-        "op": "add",
-        "path": sprintf("%v/spec/volumes", [root_path]),
-        "value": [opa_volume]
-      }
+    "op": "add",
+    "path": sprintf("%v/spec/volumes", [root_path]),
+    "value": [opa_volume]
+  }
 }
 
 opa_volume_patch := patch {
@@ -198,17 +198,17 @@ opa_volume_patch := patch {
   input.request.object.spec.volumes[i].name == "opa-config-vol"
   
   patch := {
-        "op": "remove",
-        "path": sprintf("%v/spec/volumes/%v", [root_path, i])
-      }
+    "op": "remove",
+    "path": sprintf("%v/spec/volumes/%v", [root_path, i])
+  }
 }
 
 opa_volume := {
-          "name": "opa-config-vol",
-          "configMap": {
-            "name": data.library.parameters.config
-          }
-        }
+  "name": "opa-config-vol",
+  "configMap": {
+    "name": data.library.parameters.config
+  }
+}
         
 #pod_annotation_patch := patch {
 #  patch := {
