@@ -27,34 +27,28 @@ injectable_pod {
   input.request.operation in ["CREATE", "UPDATE"]
 }
 
-namespace_label_key := data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label]
-namespace_value_key := data.library.parameters["label-value"]
-
 injection_enabled_ns {
-  namespace_label_key == namespace_value_key
+  data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label] == data.library.parameters["label-value"]
 }
 
 injection_disabled_ns {
-  namespace_label_key != namespace_value_key
+  data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label] != data.library.parameters["label-value"]
 }
 
 injection_unlabeled_ns {
-  not namespace_label_key
+  not data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label]
 }
 
-pod_label_key := input.request.object.metadata.labels[data.library.parameters.label]
-pod_value_key := data.library.parameters["label-value"]
-
 injection_enabled_pod {
-   pod_label_key == pod_value_key
+   input.request.object.metadata.labels[data.library.parameters.label] == data.library.parameters["label-value"]
 }
 
 injection_disabled_pod {
-  pod_label_key != pod_value_key
+  input.request.object.metadata.labels[data.library.parameters.label] != data.library.parameters["label-value"]
 }
 
 injection_unlabeled_pod {
-  not pod_label_key
+  not input.request.object.metadata.labels[data.library.parameters.label]
 }
 
 opa_container_exists {
