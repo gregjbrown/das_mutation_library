@@ -3,9 +3,6 @@ package libraries.opa_mutation.istio
 import data.libraries.opa_mutation.util.injectable_object
 import data.libraries.opa_mutation.util.opa_patch
 import data.libraries.opa_mutation.util.opa_volume_patch
-import data.libraries.opa_mutation.util.ignore_pod
-
-
 
 #############################################################################
 # METADATA: library-snippet/kubernetes
