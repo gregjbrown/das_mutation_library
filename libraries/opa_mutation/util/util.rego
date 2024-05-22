@@ -5,15 +5,15 @@ import future.keywords.in
 default opa_image := "openpolicyagent/opa:latest-envoy-rootless" 
 
 opa_image := data.policy["com.styra.kubernetes.mutating"].rules.rules.rapid_channel_opa_image {
-  data.global.parameters.channel == "Rapid"
+  data.library.parameters.channel == "Rapid"
 }
 
 opa_image := data.policy["com.styra.kubernetes.mutating"].rules.rules.regular_channel_opa_image {
-  data.global.parameters.channel == "Regular"
+  data.library.parameters.channel == "Regular"
 }
 
 opa_image := data.policy["com.styra.kubernetes.mutating"].rules.rules.stable_channel_opa_image {
-  data.global.parameters.channel == "Stable"
+  data.library.parameters.channel == "Stable"
 }
 
 injectable_object {
@@ -28,27 +28,27 @@ injectable_pod {
 }
 
 injection_enabled_ns {
-  data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.global.parameters.label] == data.global.parameters["label-value"]
+  data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label] == data.library.parameters["label-value"]
 }
 
 injection_disabled_ns {
-  data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.global.parameters.label] != data.global.parameters["label-value"]
+  data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label] != data.library.parameters["label-value"]
 }
 
 injection_unlabeled_ns {
-  not data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.global.parameters.label]
+  not data.kubernetes.resources.namespaces[input.request.namespace].metadata.labels[data.library.parameters.label]
 }
 
 injection_enabled_pod {
-   input.request.object.metadata.labels[data.global.parameters.label] == data.global.parameters["label-value"]
+   input.request.object.metadata.labels[data.library.parameters.label] == data.library.parameters["label-value"]
 }
 
 injection_disabled_pod {
-  input.request.object.metadata.labels[data.global.parameters.label] != data.global.parameters["label-value"]
+  input.request.object.metadata.labels[data.library.parameters.label] != data.library.parameters["label-value"]
 }
 
 injection_unlabeled_pod {
-  not input.request.object.metadata.labels[data.global.parameters.label]
+  not input.request.object.metadata.labels[data.library.parameters.label]
 }
 
 opa_container_exists {
@@ -98,10 +98,10 @@ opa_socket_mount := {
 }
     
 opa_volume_mounts := [opa_config_mount] {
-  not data.global.parameters["use-socket"] == "Yes"
+  not data.library.parameters["use-socket"] == "Yes"
 }
 opa_volume_mounts := [opa_config_mount, opa_socket_mount] {
-  data.global.parameters["use-socket"] == "Yes"
+  data.library.parameters["use-socket"] == "Yes"
 }
 
 opa_patch := patch {
@@ -200,6 +200,6 @@ opa_volume_patch := patch {
 opa_volume := {
   "name": "opa-config-vol",
   "configMap": {
-    "name": data.global.parameters.config
+    "name": data.library.parameters.config
   }
 }
