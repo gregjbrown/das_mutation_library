@@ -70,16 +70,16 @@ add_operation {
   not opa_container_exists
 }
 
-remove_operation {
-  injection_disabled_pod
-  opa_container_exists
-}
+# remove_operation {
+#   injection_disabled_pod
+#   opa_container_exists
+# }
 
-remove_operation {
-  injection_unlabeled_pod
-  not injection_enabled_ns
-  opa_container_exists
-}
+# remove_operation {
+#   injection_unlabeled_pod
+#   not injection_enabled_ns
+#   opa_container_exists
+# }
 
 root_path := "" {
   injectable_pod
@@ -146,17 +146,17 @@ opa_patch := patch {
     }
   }
 
-opa_patch := patch {
-  remove_operation
-  
-  some i
-  input.request.object.spec.containers[i].name == "opa"
-  
-  patch := {
-        "op": "remove",
-        "path": sprintf("%v/spec/containers/%v",[root_path, i])
-       }
-}
+# opa_patch := patch {
+#   remove_operation
+#  
+#   some i
+#  input.request.object.spec.containers[i].name == "opa"
+#  
+#  patch := {
+#        "op": "remove",
+#        "path": sprintf("%v/spec/containers/%v",[root_path, i])
+#       }
+#}
 
 existing_volumes {
   input.request.object.spec.template.spec.volumes
@@ -184,18 +184,18 @@ opa_volume_patch := patch {
   }
 }
 
-opa_volume_patch := patch {
-  remove_operation
-  existing_volumes
-  
-  some i
-  input.request.object.spec.volumes[i].name == "opa-config-vol"
-  
-  patch := {
-    "op": "remove",
-    "path": sprintf("%v/spec/volumes/%v", [root_path, i])
-  }
-}
+#opa_volume_patch := patch {
+#  remove_operation
+#  existing_volumes
+#  
+#  some i
+#  input.request.object.spec.volumes[i].name == "opa-config-vol"
+#  
+#  patch := { 
+#    "op": "remove",
+#    "path": sprintf("%v/spec/volumes/%v", [root_path, i])
+#  }
+#}
 
 opa_volume := {
   "name": "opa-config-vol",
